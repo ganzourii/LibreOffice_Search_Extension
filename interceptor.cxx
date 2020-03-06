@@ -26,9 +26,8 @@
 #include <com/sun/star/system/XSystemShellExecute.hpp>
 #include <com/sun/star/system/SystemShellExecuteFlags.hpp>
 #include <com/sun/star/system/SystemShellExecute.hpp>
-#include <comphelper/processfactory.hxx>
-#include <comphelper/sequence.hxx>
 #include <cppuhelper/supportsservice.hxx>
+#include <comphelper/processfactory.hxx>
 #include <rtl/ustring.hxx>
 
 #include <cstdint>
@@ -42,12 +41,12 @@ using namespace com::sun::star::text;
 using namespace com::sun::star::table;
 using namespace com::sun::star::container;
 using namespace com::sun::star::ui;
+using namespace css;
 using com::sun::star::beans::NamedValue;
 using com::sun::star::beans::XPropertySet;
 using com::sun::star::task::XJobListener;
 using com::sun::star::lang::IllegalArgumentException;
 using com::sun::star::lang::XMultiServiceFactory;
-using namespace comphelper;
 
 
 
@@ -196,6 +195,46 @@ void logError(const char* pStr)
     printf(pStr);
     fflush(stdout);
 }
+/*
+Reference< XMultiServiceFactory > getProcessServiceFactory()
+{
+	Reference< XMultiServiceFactory> xReturn = localProcessFactory.get();
+    if ( !xReturn.is() )
+    {
+        throw DeploymentException( "null process service factory" );
+    }
+    return xReturn;
+}
+
+Reference< XComponentContext > getComponentContext(Reference< XMultiServiceFactory > const & factory)
+{
+    Reference< XComponentContext > xRet;
+    Reference<XPropertySet> const xProps( factory,UNO_QUERY );
+	if (xProps.is()) {
+		try {
+			xRet.set( xProps->getPropertyValue("DefaultContext"),UNO_QUERY );
+        }
+        catch (beans::UnknownPropertyException & e) {
+		  throw DeploymentException(
+                  "unknown service factory DefaultContext property: " + e.Message,
+                  Reference<XInterface>(factory, UNO_QUERY) );
+          }
+    }
+    if ( !xRet.is() )
+    {
+    	throw DeploymentException(
+              "no service factory DefaultContext",
+              Reference<XInterface>(factory, UNO_QUERY) );
+    }
+    return xRet;
+}
+
+Reference< XComponentContext > getProcessComponentContext()
+{
+      return getComponentContext( getProcessServiceFactory() );
+}
+*/
+
 Reference<XTextViewCursor> getXTextViewCursor( const Reference<XModel >& xModel )
 {
     Reference<XController > xController = xModel->getCurrentController();
@@ -242,23 +281,25 @@ void SelectedTextSearch( const Reference< XFrame > &rxFrame )
   
     Reference< XText > xText= xTextRange->getText();
     OUString stringText = xTextRange->getString() ;
+	Reference<XSystemShellExecute > xSystemShellExecute(system::SystemShellExecute::create(comphelper::getProcessComponentContext()));
     if( stringText.isEmpty())
     {  
-		Reference<XSystemShellExecute > xSystemShellExecute(SystemShellExecute::create(getProcessComponentContext()));
 		#if defined _WIN32
-			xSystemShellExecute->execute("start https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+			xSystemShellExecute->execute("https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#else
-			xSystemShellExecute->execute("sensible-browser https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+			//system("sensible-browser http://wwww.google.com");
+			xSystemShellExecute->execute("https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#endif 
 	}
     else
     {
-		OUString command = "sensible-browser https://wikipedia.org/wiki/"+stringText;
+		OUString command = "https://wikipedia.org/wiki/"+stringText;
 		//Trying to get the string from xText to give it to the background process 
 		#if defined _WIN32
-			xSystemShellExecute->execute("start https://wikipedia.org/wiki/Ganzouri", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+			xSystemShellExecute->execute(command, OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#else
-			xSystemShellExecute->execute("sensible-browser https://wikipedia.org/wiki/Ganzouri", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+			//system("sensible-browser http://wwww.bing.com");
+			xSystemShellExecute->execute(command, OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#endif 
 		//Test reaching this far 
     }
