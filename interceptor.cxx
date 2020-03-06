@@ -105,8 +105,6 @@ void SAL_CALL RegisterInterceptorJobImpl::executeAsync( const Sequence<NamedValu
     throw(IllegalArgumentException, RuntimeException)
 {
 
-    printf("DEBUG>>> Called executeAsync() : this = %p\n", this); fflush(stdout);
-
     sal_Int32 nNumNVs = rArgs.getLength();
     Sequence<NamedValue> aEnvironment;
     for ( sal_Int32 nIdx = 0; nIdx < nNumNVs; ++nIdx )
@@ -153,13 +151,11 @@ void SAL_CALL RegisterInterceptorJobImpl::executeAsync( const Sequence<NamedValu
 					if ( xContextMenuInterception.is() )
 					{
 						xContextMenuInterception->registerContextMenuInterceptor( xInterceptor );
-						printf("DEBUG>>> Registered ContextMenuInterceptorImpl to current frame controller.\n"); fflush(stdout);
 					}
 				}
 			}
 		}
 		else if ( aEventName.equalsAscii("onIncrementClick") ) {
-		printf("DEBUG>>> Got request from DISPATCH envType and event name onIncrementClick, going to call SelectedTextSearch().\n"); fflush(stdout);
                 SelectedTextSearch( xFrame );
 	    }
 	}
@@ -195,45 +191,6 @@ void logError(const char* pStr)
     printf(pStr);
     fflush(stdout);
 }
-/*
-Reference< XMultiServiceFactory > getProcessServiceFactory()
-{
-	Reference< XMultiServiceFactory> xReturn = localProcessFactory.get();
-    if ( !xReturn.is() )
-    {
-        throw DeploymentException( "null process service factory" );
-    }
-    return xReturn;
-}
-
-Reference< XComponentContext > getComponentContext(Reference< XMultiServiceFactory > const & factory)
-{
-    Reference< XComponentContext > xRet;
-    Reference<XPropertySet> const xProps( factory,UNO_QUERY );
-	if (xProps.is()) {
-		try {
-			xRet.set( xProps->getPropertyValue("DefaultContext"),UNO_QUERY );
-        }
-        catch (beans::UnknownPropertyException & e) {
-		  throw DeploymentException(
-                  "unknown service factory DefaultContext property: " + e.Message,
-                  Reference<XInterface>(factory, UNO_QUERY) );
-          }
-    }
-    if ( !xRet.is() )
-    {
-    	throw DeploymentException(
-              "no service factory DefaultContext",
-              Reference<XInterface>(factory, UNO_QUERY) );
-    }
-    return xRet;
-}
-
-Reference< XComponentContext > getProcessComponentContext()
-{
-      return getComponentContext( getProcessServiceFactory() );
-}
-*/
 
 Reference<XTextViewCursor> getXTextViewCursor( const Reference<XModel >& xModel )
 {
@@ -247,21 +204,18 @@ void SelectedTextSearch( const Reference< XFrame > &rxFrame )
 {
     if ( !rxFrame.is() )
     {
-	logError("DEBUG>>> Search : rxFrame is invalid.\n");
 	return;
     }
     
     Reference< XController > xCtrl = rxFrame->getController();
     if ( !xCtrl.is() )
     {
-	logError("DEBUG>>> Search : xCtrl is invalid.\n");
 	return;
     }
 
     Reference< XModel > xModel = xCtrl->getModel();
     if ( !xModel.is() )
     {
-	logError("DEBUG>>> Search : xModel is invalid.\n");
 	return;
     }
 	Reference<XTextRange> xTextRange;
@@ -287,21 +241,17 @@ void SelectedTextSearch( const Reference< XFrame > &rxFrame )
 		#if defined _WIN32
 			xSystemShellExecute->execute("https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#else
-			//system("sensible-browser http://wwww.google.com");
 			xSystemShellExecute->execute("https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#endif 
 	}
     else
     {
 		OUString command = "https://wikipedia.org/wiki/"+stringText;
-		//Trying to get the string from xText to give it to the background process 
 		#if defined _WIN32
 			xSystemShellExecute->execute(command, OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#else
-			//system("sensible-browser http://wwww.bing.com");
 			xSystemShellExecute->execute(command, OUString(),SystemShellExecuteFlags::URIS_ONLY );
 		#endif 
-		//Test reaching this far 
     }
     
 }
@@ -314,25 +264,21 @@ ContextMenuInterceptorAction SAL_CALL ContextMenuInterceptorImpl::notifyContextM
     throw ( RuntimeException )
 {
 
-    printf("DEBUG>>> Inside notifyContextMenuExecute : this = %p\n", this); fflush(stdout);
     try {
 	Reference< XIndexContainer > xContextMenu = rEvent.ActionTriggerContainer;
 	if ( !xContextMenu.is() )
 	{
-	    logError("DEBUG>>> notifyContextMenuExecute : bad rEvent.ActionTriggerContainer\n");
 	    return ContextMenuInterceptorAction_IGNORED;
 	}
 	Reference< XMultiServiceFactory > xMenuElementFactory( xContextMenu, UNO_QUERY );
 	if ( !xMenuElementFactory.is() )
 	{
-	    logError("DEBUG>>> notifyContextMenuExecute : bad xMenuElementFactory\n");
 	    return ContextMenuInterceptorAction_IGNORED;
 	}
 
 	Reference< XPropertySet > xSeparator( xMenuElementFactory->createInstance( "com.sun.star.ui.ActionTriggerSeparator" ), UNO_QUERY );
 	if ( !xSeparator.is() )
 	{
-	    logError("DEBUG>>> notifyContextMenuExecute : cannot create xSeparator\n");
 	    return ContextMenuInterceptorAction_IGNORED;
 	}
 
@@ -341,7 +287,6 @@ ContextMenuInterceptorAction SAL_CALL ContextMenuInterceptorImpl::notifyContextM
 	Reference< XPropertySet > xMenuEntry( xMenuElementFactory->createInstance( "com.sun.star.ui.ActionTrigger" ), UNO_QUERY );
 	if ( !xMenuEntry.is() )
 	{
-	    logError("DEBUG>>> notifyContextMenuExecute : cannot create xMenuEntry\n");
 	    return ContextMenuInterceptorAction_IGNORED;
 	}
 
@@ -357,7 +302,6 @@ ContextMenuInterceptorAction SAL_CALL ContextMenuInterceptorImpl::notifyContextM
     }
     catch ( Exception& e )
     {
-	fprintf(stderr, "DEBUG>>> notifyContextMenuExecute : caught UNO exception: %s\n",
 		OUStringToOString( e.Message, RTL_TEXTENCODING_ASCII_US ).getStr());
 	fflush(stderr);
     }
