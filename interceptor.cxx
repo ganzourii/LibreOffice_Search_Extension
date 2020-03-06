@@ -23,7 +23,11 @@
 #include <com/sun/star/container/XIndexContainer.hpp>
 #include <com/sun/star/lang/XMultiServiceFactory.hpp>
 #include <com/sun/star/beans/XPropertySet.hpp>
-
+#include <com/sun/star/system/XSystemShellExecute.hpp>
+#include <com/sun/star/system/SystemShellExecuteFlags.hpp>
+#include <com/sun/star/system/SystemShellExecute.hpp>
+#include <comphelper/processfactory.hxx>
+#include <comphelper/sequence.hxx>
 #include <cppuhelper/supportsservice.hxx>
 #include <rtl/ustring.hxx>
 
@@ -32,6 +36,7 @@
 
 using rtl::OUString;
 using namespace com::sun::star::uno;
+using namespace com::sun::star::system;
 using namespace com::sun::star::frame;
 using namespace com::sun::star::text;
 using namespace com::sun::star::table;
@@ -42,6 +47,7 @@ using com::sun::star::beans::XPropertySet;
 using com::sun::star::task::XJobListener;
 using com::sun::star::lang::IllegalArgumentException;
 using com::sun::star::lang::XMultiServiceFactory;
+using namespace comphelper;
 
 
 
@@ -237,15 +243,23 @@ void SelectedTextSearch( const Reference< XFrame > &rxFrame )
     Reference< XText > xText= xTextRange->getText();
     OUString stringText = xTextRange->getString() ;
     if( stringText.isEmpty())
-    {   
-		 system("sensible-browser https://wikipedia.org/wiki/LibreOffice");
+    {  
+		Reference<XSystemShellExecute > xSystemShellExecute(SystemShellExecute::create(getProcessComponentContext()));
+		#if defined _WIN32
+			xSystemShellExecute->execute("start https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+		#else
+			xSystemShellExecute->execute("sensible-browser https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+		#endif 
 	}
     else
     {
-		OUString xLink = "sensible-browser https://wikipedia.org/wiki/"+stringText;
+		OUString command = "sensible-browser https://wikipedia.org/wiki/"+stringText;
 		//Trying to get the string from xText to give it to the background process 
-		//system(xLink.getStr())
-		system("sensible-browser https://wikipedia.org/wiki/Ganzouri");
+		#if defined _WIN32
+			xSystemShellExecute->execute("start https://wikipedia.org/wiki/Ganzouri", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+		#else
+			xSystemShellExecute->execute("sensible-browser https://wikipedia.org/wiki/Ganzouri", OUString(),SystemShellExecuteFlags::URIS_ONLY );
+		#endif 
 		//Test reaching this far 
     }
     
