@@ -294,10 +294,7 @@ ContextMenuInterceptorAction SAL_CALL ContextMenuInterceptorImpl::notifyContextM
 	return ContextMenuInterceptorAction_CONTINUE_MODIFIED;
     }
     catch ( Exception& e )
-    {
-		OUStringToOString( e.Message, RTL_TEXTENCODING_ASCII_US ).getStr());
-	fflush(stderr);
-    }
+    {}
 
     return ContextMenuInterceptorAction_IGNORED;
 }
