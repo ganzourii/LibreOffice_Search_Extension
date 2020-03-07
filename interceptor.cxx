@@ -236,14 +236,7 @@ void SelectedTextSearch( const Reference< XFrame > &rxFrame )
     Reference< XText > xText= xTextRange->getText();
     OUString stringText = xTextRange->getString() ;
 	Reference<XSystemShellExecute > xSystemShellExecute(system::SystemShellExecute::create(comphelper::getProcessComponentContext()));
-    if( stringText.isEmpty())
-    {  
-		#if defined _WIN32
-			xSystemShellExecute->execute("https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
-		#else
-			xSystemShellExecute->execute("https://wikipedia.org/wiki/LibreOffice", OUString(),SystemShellExecuteFlags::URIS_ONLY );
-		#endif 
-	}
+    if( stringText.isEmpty()) {}
     else
     {
 		OUString command = "https://wikipedia.org/wiki/"+stringText;
