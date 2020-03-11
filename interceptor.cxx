@@ -239,12 +239,9 @@ void SelectedTextSearch( const Reference< XFrame > &rxFrame )
     if( stringText.isEmpty()) {}
     else
     {
-		OUString command = "https://wikipedia.org/wiki/"+stringText;
-		#if defined _WIN32
-			xSystemShellExecute->execute(command, OUString(),SystemShellExecuteFlags::URIS_ONLY );
-		#else
-			xSystemShellExecute->execute(command, OUString(),SystemShellExecuteFlags::URIS_ONLY );
-		#endif 
+		OUString URL = "https://wikipedia.org/wiki/"+stringText;
+		xSystemShellExecute->execute(URL, OUString(),SystemShellExecuteFlags::URIS_ONLY );
+
     }
     
 }
